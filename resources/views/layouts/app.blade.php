@@ -10,30 +10,39 @@
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&display=swap"
-        rel="stylesheet">
-
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Playfair+Display:wght@700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 
-<body class="font-['Inter'] antialiased text-zinc-900 bg-zinc-50">
+<body class="font-sans antialiased text-zinc-900 bg-zinc-50">
+
+    <!-- Wrapper Utama -->
     <div class="min-h-screen bg-zinc-50">
 
+        <!-- Panggil Sidebar -->
         @include('layouts.navigation')
 
-        @isset($header)
-            <header class="bg-white shadow-sm border-b border-zinc-200">
-                <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
-                    {{ $header }}
-                </div>
-            </header>
-        @endisset
+        <!-- Area Konten (Digeser ke Kanan di Laptop) -->
+        <div class="flex flex-col md:ml-64 min-h-screen transition-all duration-300 pt-[72px] md:pt-0">
 
-        <main>
-            {{ $slot }}
-        </main>
+            <!-- Header Halaman Putih (Glassmorphism Bening) -->
+            @if (isset($header))
+                <header class="sticky top-0 z-30 bg-white/60 backdrop-blur-lg shadow-sm border-b border-white/40">
+                    <div class="py-6 px-4 sm:px-6 lg:px-8">
+                        {{ $header }}
+                    </div>
+                </header>
+            @endif
 
+            <main class="flex-1">
+                {{ $slot }}
+            </main>
+
+        </div>
     </div>
+
 </body>
 
 </html>
