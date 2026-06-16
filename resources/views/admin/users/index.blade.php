@@ -1,9 +1,9 @@
 <x-app-layout>
-    <x-slot name="header">
-        <h2 class="font-bold text-2xl text-zinc-900 leading-tight tracking-tight">
-            {{ __('Kelola Data Pelanggan') }}
-        </h2>
-    </x-slot>
+<x-slot name="header">
+    <h2 class="text-3xl text-zinc-900 leading-tight tracking-tight" style="font-family: 'Playfair Display', serif; font-weight: 800;">
+        {{ __('Kelola Data Pelanggan') }}
+    </h2>
+</x-slot>
 
 <div class="py-8 sm:py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
@@ -12,7 +12,6 @@
                 <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-4">
                     <div>
                         <h3 class="text-xl font-bold text-zinc-900 tracking-tight">Daftar Pelanggan</h3>
-                        <p class="text-sm font-medium text-zinc-500 mt-1">Manajemen data pengguna Next Project Film.</p>
                     </div>
 
                     <a href="{{ route('admin.users.create') }}"
