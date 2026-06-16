@@ -52,6 +52,21 @@
                 class="flex items-center px-4 py-3 rounded-xl font-bold transition-all duration-200 {{ request()->routeIs('admin.paket.index') ? 'bg-zinc-800 text-[#FCBF49] shadow-md scale-[1.02]' : 'text-zinc-400 hover:text-white hover:bg-zinc-800/60' }}">
                 {{ __('Paket Layanan') }}
             </a>
+
+            <a href="{{ route('admin.portofolio.index') }}"
+                class="flex items-center px-4 py-3 rounded-xl font-bold transition-all duration-200 {{ request()->routeIs('admin.portofolio.index') ? 'bg-zinc-800 text-[#FCBF49] shadow-md scale-[1.02]' : 'text-zinc-400 hover:text-white hover:bg-zinc-800/60' }}">
+                {{ __('Portofolio') }}
+            </a>
+
+            <a href="{{ route('admin.pemesanan.index') }}"
+                class="flex items-center px-4 py-3 rounded-xl font-bold transition-all duration-200 {{ request()->routeIs('admin.pemesanan.index') ? 'bg-zinc-800 text-[#FCBF49] shadow-md scale-[1.02]' : 'text-zinc-400 hover:text-white hover:bg-zinc-800/60' }}">
+                {{ __('Pemesanan') }}
+            </a>
+
+            <a href="{{ route('booking.index') }}"
+                class="flex items-center px-4 py-3 rounded-xl font-bold transition-all duration-200 {{ request()->routeIs('booking.index') ? 'bg-zinc-800 text-[#FCBF49] shadow-md scale-[1.02]' : 'text-zinc-400 hover:text-white hover:bg-zinc-800/60' }}">
+                {{ __('Booking') }}
+            </a>
         </div>
 
         <!-- User Info & Tombol Logout di Bawah -->
