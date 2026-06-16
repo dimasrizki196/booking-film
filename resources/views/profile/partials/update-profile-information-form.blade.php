@@ -16,7 +16,6 @@
     <form method="post" action="{{ route('profile.update') }}" class="mt-6 space-y-6">
         @csrf
         @method('patch')
-
         <div>
             <x-input-label for="name" :value="__('Name')" class="font-medium text-zinc-700" />
             <x-text-input id="name" name="name" type="text"
