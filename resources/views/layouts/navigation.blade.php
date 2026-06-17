@@ -62,12 +62,22 @@
                     class="flex items-center px-4 py-3 rounded-xl font-bold transition-all duration-200 {{ request()->routeIs('admin.pemesanan.index') ? 'bg-zinc-800 text-[#FCBF49] shadow-md scale-[1.02]' : 'text-zinc-400 hover:text-white hover:bg-zinc-800/60' }}">
                     {{ __('Pemesanan Masuk') }}
                 </a>
+
+                <a href="{{ route('admin.laporan.index') }}"
+                    class="flex items-center px-4 py-3 rounded-xl font-bold transition-all duration-200 {{ request()->routeIs('admin.laporan.index') ? 'bg-zinc-800 text-[#FCBF49] shadow-md scale-[1.02]' : 'text-zinc-400 hover:text-white hover:bg-zinc-800/60' }}">
+                    {{ __('Laporan') }}
+                </a>
             @endif
 
             @if (Auth::user()->role !== 'admin')
                 <div class="pt-4 pb-1">
                     <p class="px-4 text-xs font-bold text-zinc-500 uppercase tracking-wider">Menu Pelanggan</p>
                 </div>
+
+                <a href="{{ route('rekomendasi.index') }}"
+                    class="flex items-center px-4 py-3 rounded-xl font-bold transition-all duration-200 {{ request()->routeIs('rekomendasi.*') ? 'bg-zinc-800 text-[#FCBF49] shadow-md scale-[1.02]' : 'text-zinc-400 hover:text-white hover:bg-zinc-800/60' }}">
+                    {{ __('Rekomendasi Paket') }}
+                </a>
 
                 <a href="{{ route('booking.index') }}"
                     class="flex items-center px-4 py-3 rounded-xl font-bold transition-all duration-200 {{ request()->routeIs('booking.index') ? 'bg-zinc-800 text-[#FCBF49] shadow-md scale-[1.02]' : 'text-zinc-400 hover:text-white hover:bg-zinc-800/60' }}">

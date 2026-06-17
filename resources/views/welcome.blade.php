@@ -73,35 +73,108 @@
         </div>
     </div>
 
+    <!-- Section Portofolio -->
     <section class="relative z-20 -mt-20 pb-20">
-        @php
-            // Mengambil portofolio dan membaginya ke dalam kategori (jika ada)
-            // Di sini kita tampilkan semua sebagai satu baris besar
-            $portofolio = \App\Models\Portofolio::all();
-        @endphp
-
         <div class="mb-12">
             <h2 class="px-6 md:px-12 text-2xl font-black mb-6 uppercase tracking-widest text-[#FCBF49]">Karya Unggulan
             </h2>
-            <div class="flex gap-4 px-6 md:px-12 overflow-x-auto no-scrollbar snap-x">
+            <div class="flex gap-4 px-6 md:px-12 overflow-x-auto no-scrollbar snap-x pb-8">
                 @forelse($portofolio as $item)
                     <div
-                        class="snap-start shrink-0 w-[300px] md:w-[450px] aspect-video bg-zinc-800 rounded-lg overflow-hidden relative group cursor-pointer border border-zinc-700 hover:scale-105 transition-transform duration-500">
-                        <img src="{{ asset('storage/' . $item->thumbnail) }}" class="w-full h-full object-cover">
-                        <div class="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent opacity-80"></div>
-                        <div class="absolute bottom-4 left-4">
-                            <h3 class="font-bold text-lg">{{ $item->judul_film }}</h3>
+                        class="snap-start shrink-0 w-[300px] md:w-[450px] aspect-video bg-zinc-800 rounded-lg overflow-hidden relative group cursor-pointer border border-zinc-700/50 hover:border-[#FCBF49]/50 transition-all duration-500">
+                        @if ($item->thumbnail)
+                            <img src="{{ asset('storage/' . $item->thumbnail) }}"
+                                class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700">
+                        @else
+                            <div class="w-full h-full flex items-center justify-center bg-zinc-900">
+                                <span class="text-zinc-600">No Image</span>
+                            </div>
+                        @endif
+                        <div
+                            class="absolute inset-0 bg-gradient-to-t from-[#141414] via-[#141414]/40 to-transparent opacity-90">
+                        </div>
+                        <div class="absolute bottom-6 left-6">
+                            <h3 class="font-bold text-xl mb-1 text-white">{{ $item->judul_film }}</h3>
                             <a href="{{ $item->link_video }}" target="_blank"
-                                class="text-xs text-[#FCBF49] font-bold uppercase tracking-widest hover:underline">Tonton
-                                Video</a>
+                                class="text-xs text-[#FCBF49] font-bold uppercase tracking-widest hover:text-white transition-colors">Tonton
+                                Video &rarr;</a>
                         </div>
                     </div>
                 @empty
-                    <p class="px-12 text-zinc-500">Belum ada karya yang diunggah.</p>
+                    <p class="px-12 text-zinc-500 italic">Belum ada karya yang diunggah.</p>
                 @endforelse
             </div>
         </div>
     </section>
+
+    <!-- Section Paket Layanan -->
+    <section class="py-20 bg-zinc-900/30 border-y border-zinc-800/50">
+        <div class="max-w-7xl mx-auto px-6 md:px-12">
+
+            <div class="text-center mb-16">
+                <h2 class="text-3xl md:text-4xl font-black uppercase tracking-widest text-white mb-4">
+                    Pilih Paket <span class="text-[#FCBF49]">Produksi</span>
+                </h2>
+                <p class="text-zinc-400 max-w-2xl mx-auto">Solusi sinematik untuk berbagai kebutuhan visual Anda. Dari
+                    film pendek hingga komersial, kami siap mengeksekusi.</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                @forelse ($paket as $p)
+                    <div
+                        class="bg-[#141414] border border-zinc-800 rounded-xl p-8 hover:border-[#FCBF49] transition-all duration-300 flex flex-col group">
+
+                        <div class="flex-1">
+                            <h3
+                                class="text-2xl font-black text-white mb-3 group-hover:text-[#FCBF49] transition-colors">
+                                {{ $p->nama_paket }}</h3>
+                            <p class="text-zinc-400 text-sm leading-relaxed mb-6">{{ $p->deskripsi }}</p>
+                        </div>
+
+                        <div class="pt-6 border-t border-zinc-800/80">
+                            <p class="text-3xl font-black text-white mb-2">Rp
+                                {{ number_format($p->harga, 0, ',', '.') }}</p>
+                            <p class="text-xs font-bold text-zinc-500 uppercase tracking-wider mb-6">Estimasi
+                                Pengerjaan: <span class="text-[#FCBF49]">{{ $p->durasi_pengerjaan }} Hari</span></p>
+
+                            <a href="{{ route('register') }}"
+                                class="block w-full text-center py-3 border border-[#FCBF49] text-[#FCBF49] font-bold uppercase text-sm rounded hover:bg-[#FCBF49] hover:text-black transition-colors duration-300">
+                                Booking Paket
+                            </a>
+                        </div>
+
+                    </div>
+                @empty
+                    <div class="col-span-full text-center py-12">
+                        <p class="text-zinc-500 italic">Belum ada paket layanan yang tersedia.</p>
+                    </div>
+                @endforelse
+            </div>
+
+            <!-- Banner Kalkulator -->
+            <div
+                class="mt-16 bg-gradient-to-r from-zinc-800 to-[#141414] rounded-xl p-8 md:p-12 border border-zinc-700/50 flex flex-col md:flex-row items-center justify-between gap-6 relative overflow-hidden">
+                <div
+                    class="absolute inset-0 opacity-10 bg-[url('https://www.transparenttextures.com/patterns/stardust.png')]">
+                </div>
+                <div class="relative z-10 text-center md:text-left">
+                    <h3 class="text-2xl font-black text-white uppercase tracking-wider mb-2">Bingung Memilih Paket?</h3>
+                    <p class="text-zinc-400">Gunakan fitur rekomendasi kami untuk menyesuaikan budget dan tenggat waktu
+                        Anda.</p>
+                </div>
+                <a href="{{ route('rekomendasi.index') }}"
+                    class="relative z-10 whitespace-nowrap bg-white text-black px-8 py-4 font-black uppercase text-sm hover:bg-[#FCBF49] transition rounded">
+                    Coba Kalkulator
+                </a>
+            </div>
+
+        </div>
+    </section>
+
+    <footer class="py-10 text-center border-t border-zinc-900">
+        <p class="text-zinc-500 text-sm font-bold tracking-wider uppercase">&copy; {{ date('Y') }} NextProjectFilm.
+            All rights reserved.</p>
+    </footer>
 
 </body>
 
