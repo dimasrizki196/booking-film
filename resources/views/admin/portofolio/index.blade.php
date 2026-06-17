@@ -89,12 +89,12 @@
                                         </a>
 
                                         <form action="{{ route('admin.portofolio.destroy', $item->id) }}" method="POST"
-                                            class="inline-block"
-                                            onsubmit="return confirm('Yakin ingin menghapus portofolio ini?');">
+                                            class="inline-block form-delete"
+                                            data-confirm-message="Karya film '{{ $item->judul_film }}' akan dihapus secara permanen.">
                                             @csrf
                                             @method('DELETE')
                                             <button type="submit"
-                                                class="font-bold text-red-500 hover:text-red-700 transition-colors">
+                                                class="font-bold text-red-500 hover:text-red-700 transition-colors focus:outline-none">
                                                 Hapus
                                             </button>
                                         </form>
