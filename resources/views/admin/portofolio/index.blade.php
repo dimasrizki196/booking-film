@@ -84,7 +84,7 @@
                                     </td>
                                     <td class="px-6 py-5 whitespace-nowrap text-sm">
                                         <a href="{{ route('admin.portofolio.edit', $item->id) }}"
-                                            class="font-bold text-[#FCBF49] hover:text-yellow-600 transition-colors mr-4">
+                                            class="font-bold text-blue-600 hover:text-blue-800 transition-colors mr-4">
                                             Edit
                                         </a>
 

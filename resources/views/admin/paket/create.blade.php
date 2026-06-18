@@ -21,39 +21,40 @@
 
                     <div>
                         <label class="block text-sm font-bold text-zinc-700 mb-2">Nama Paket</label>
-                        <input type="text" name="nama_paket"
-                            class="w-full rounded-xl border-zinc-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 transition duration-200 px-4 py-3 text-zinc-900 bg-zinc-50 focus:bg-white placeholder-zinc-400"
+                        <input type="text" name="nama_paket" value="{{ old('nama_paket') }}"
+                            class="w-full rounded-2xl border-zinc-200 bg-zinc-50 py-3 px-4 focus:border-[#FCBF49] focus:ring-[#FCBF49] transition duration-200 text-zinc-800 font-medium"
                             placeholder="Contoh: Paket Cinematic Premium" required>
                     </div>
 
                     <div>
                         <label class="block text-sm font-bold text-zinc-700 mb-2">Deskripsi</label>
                         <textarea name="deskripsi" rows="4"
-                            class="w-full rounded-xl border-zinc-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 transition duration-200 px-4 py-3 text-zinc-900 bg-zinc-50 focus:bg-white placeholder-zinc-400"
-                            placeholder="Jelaskan detail apa saja yang didapatkan oleh pelanggan..." required></textarea>
+                            class="w-full rounded-2xl border-zinc-200 bg-zinc-50 py-3 px-4 focus:border-[#FCBF49] focus:ring-[#FCBF49] transition duration-200 text-zinc-800 font-medium"
+                            placeholder="Jelaskan detail apa saja yang didapatkan oleh pelanggan..." required>{{ old('deskripsi') }}</textarea>
                     </div>
 
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div>
-                            <label class="block text-sm font-bold text-zinc-700 mb-2">Harga</label>
+                            <label class="block text-sm font-bold text-zinc-700 mb-2">Harga (Rp)</label>
                             <div class="relative">
                                 <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                                    <span class="text-zinc-500 font-bold">Rp</span>
+                                    <span class="text-zinc-400 font-bold">Rp</span>
                                 </div>
-                                <input type="number" name="harga"
-                                    class="w-full rounded-xl border-zinc-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 transition duration-200 pl-11 pr-4 py-3 text-zinc-900 bg-zinc-50 focus:bg-white"
+                                <input type="text" id="harga_display" inputmode="numeric"
+                                    class="w-full pl-12 rounded-2xl border-zinc-200 bg-zinc-50 py-3 px-4 focus:border-[#FCBF49] focus:ring-[#FCBF49] transition duration-200 text-zinc-800 font-bold text-lg"
                                     placeholder="0" required>
+                                <input type="hidden" name="harga" id="harga_actual" value="{{ old('harga') }}">
                             </div>
                         </div>
 
                         <div>
                             <label class="block text-sm font-bold text-zinc-700 mb-2">Durasi Pengerjaan</label>
                             <div class="relative">
-                                <input type="number" name="durasi_pengerjaan"
-                                    class="w-full rounded-xl border-zinc-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 transition duration-200 px-4 py-3 text-zinc-900 bg-zinc-50 focus:bg-white pr-16"
+                                <input type="number" name="durasi_pengerjaan" value="{{ old('durasi_pengerjaan') }}"
+                                    class="w-full rounded-2xl border-zinc-200 bg-zinc-50 py-3 px-4 focus:border-[#FCBF49] focus:ring-[#FCBF49] transition duration-200 text-zinc-800 font-bold pr-16"
                                     placeholder="0" required>
                                 <div class="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none">
-                                    <span class="text-zinc-500 font-bold">Hari</span>
+                                    <span class="text-zinc-400 font-bold">Hari</span>
                                 </div>
                             </div>
                         </div>
@@ -61,7 +62,7 @@
 
                     <div class="flex items-center justify-end pt-6 mt-6 border-t border-zinc-100 gap-4">
                         <a href="{{ route('admin.paket.index') }}"
-                            class="px-6 py-3 bg-zinc-100 text-zinc-600 font-bold rounded-xl hover:bg-zinc-200 transition-colors focus:ring-2 focus:ring-zinc-200 focus:outline-none">
+                            class="px-6 py-3 bg-zinc-100 text-zinc-800 font-bold rounded-xl hover:bg-zinc-200 transition-colors focus:ring-2 focus:ring-zinc-200 focus:outline-none">
                             Batal
                         </a>
                         <button type="submit"
@@ -74,4 +75,27 @@
             </div>
         </div>
     </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const displayInput = document.getElementById('harga_display');
+            const hiddenInput = document.getElementById('harga_actual');
+
+            function formatRupiah(angka) {
+                if (!angka) return '';
+                return new Intl.NumberFormat('id-ID').format(angka);
+            }
+
+            // Jika ada old input saat gagal validasi
+            if (hiddenInput.value) {
+                displayInput.value = formatRupiah(hiddenInput.value);
+            }
+
+            displayInput.addEventListener('input', function(e) {
+                let rawValue = this.value.replace(/\D/g, '');
+                hiddenInput.value = rawValue;
+                this.value = formatRupiah(rawValue);
+            });
+        });
+    </script>
 </x-app-layout>
