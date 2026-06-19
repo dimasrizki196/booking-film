@@ -29,9 +29,16 @@ class BookingController extends Controller
 
     public function store(Request $request)
     {
+        // Tentukan tanggal minimal H-3
+        $minDate = now()->addDays(3)->format('Y-m-d');
+
+        // 1. Validasi Input
         $request->validate([
-            'paket_id' => 'required|exists:paket_layanans,id',
-            'tanggal_pengerjaan' => 'required|date|after_or_equal:today', // Minimal booking hari ini
+            // ... validasi field lainnya (paket_id, dsb) ...
+            'tanggal_pesan' => 'required|date|after_or_equal:' . $minDate,
+        ], [
+            // Kustomisasi pesan error agar mudah dipahami pelanggan
+            'tanggal_pesan.after_or_equal' => 'Maaf, tanggal pemesanan harus dilakukan minimal H-3 dari hari ini.',
         ]);
 
         // Mengambil harga asli dari database berdasarkan paket yang dipilih

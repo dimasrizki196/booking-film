@@ -2,17 +2,171 @@
     <x-slot name="header">
         <h2 class="text-3xl text-zinc-900 leading-tight tracking-tight"
             style="font-family: 'Playfair Display', serif; font-weight: 800;">
-            {{ __('Dashboard') }}
+            {{ __('Dashboard Admin') }}
         </h2>
     </x-slot>
 
-    <div class="py-12">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-                <div class="p-6 text-gray-900">
-                    {{ __("You're logged in!") }}
+    @php
+        // Deklarasi array bulan dan tahun agar bisa dipakai di form dan judul tabel
+        $bulans = [
+            '01' => 'Januari',
+            '02' => 'Februari',
+            '03' => 'Maret',
+            '04' => 'April',
+            '05' => 'Mei',
+            '06' => 'Juni',
+            '07' => 'Juli',
+            '08' => 'Agustus',
+            '09' => 'September',
+            '10' => 'Oktober',
+            '11' => 'November',
+            '12' => 'Desember',
+        ];
+        $currentYear = date('Y');
+    @endphp
+
+    <div class="py-8 sm:py-12">
+        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
+
+            <div
+                class="w-full bg-gradient-to-br from-zinc-900 to-zinc-800 p-8 rounded-3xl shadow-xl border border-zinc-700 relative overflow-hidden">
+                <div class="absolute -top-12 -right-12 w-48 h-48 bg-[#FCBF49] rounded-full opacity-20 blur-3xl"></div>
+                <div class="absolute bottom-0 right-10 w-32 h-32 bg-blue-500 rounded-full opacity-20 blur-2xl"></div>
+
+                <div class="relative z-10">
+                    <h3 class="text-3xl font-bold text-white mb-3" style="font-family: 'Playfair Display', serif;">
+                        Selamat Datang, {{ Auth::user()->name }}!
+                    </h3>
+                    <p class="text-zinc-300 text-lg mb-8 max-w-xl">
+                        Pantau dan kelola seluruh aktivitas pemesanan, jadwal produksi, serta laporan sistem aplikasi
+                        NextProjectFilm.
+                    </p>
+
+                    <div class="flex flex-wrap gap-4">
+                        <a href="{{ route('admin.pemesanan.index') }}"
+                            class="bg-[#FCBF49] text-zinc-950 px-6 py-3 rounded-xl font-bold hover:bg-yellow-500 transition shadow-lg flex items-center gap-2">
+                            <i class="fa-solid fa-list-check"></i> Kelola Detail Pemesanan
+                        </a>
+                        <a href="{{ route('admin.laporan.index') }}"
+                            class="bg-white/10 text-white border border-white/20 px-6 py-3 rounded-xl font-bold hover:bg-white/20 transition shadow-lg backdrop-blur-sm flex items-center gap-2">
+                            <i class="fa-solid fa-chart-pie"></i> Lihat Laporan Lengkap
+                        </a>
+                    </div>
                 </div>
             </div>
+
+            <div class="bg-white p-6 rounded-3xl shadow-xl border border-zinc-100">
+                <div class="mb-4">
+                    <h4 class="text-lg font-bold text-zinc-900">Cari Data Project</h4>
+                    <p class="text-sm text-zinc-500">Pilih bulan dan tahun untuk menampilkan daftar project.</p>
+                </div>
+
+                <form method="GET" action="{{ route('dashboard') }}"
+                    class="flex flex-col sm:flex-row gap-4 items-center">
+                    <div class="flex-1 w-full">
+                        <select name="bulan"
+                            class="w-full appearance-none rounded-2xl border-zinc-200 bg-zinc-50 py-3 px-4 font-medium text-zinc-700 focus:border-[#FCBF49] focus:ring-[#FCBF49]">
+                            <option value="">Semua Bulan</option>
+                            @foreach ($bulans as $num => $name)
+                                <option value="{{ $num }}" {{ request('bulan') == $num ? 'selected' : '' }}>
+                                    {{ $name }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+
+                    <div class="flex-1 w-full">
+                        <select name="tahun"
+                            class="w-full appearance-none rounded-2xl border-zinc-200 bg-zinc-50 py-3 px-4 font-medium text-zinc-700 focus:border-[#FCBF49] focus:ring-[#FCBF49]">
+                            <option value="">Semua Tahun</option>
+                            @for ($i = $currentYear; $i >= $currentYear - 5; $i--)
+                                <option value="{{ $i }}" {{ request('tahun') == $i ? 'selected' : '' }}>
+                                    {{ $i }}
+                                </option>
+                            @endfor
+                        </select>
+                    </div>
+
+                    <button type="submit"
+                        class="w-full sm:w-auto bg-zinc-900 text-white px-8 py-3 rounded-2xl font-bold hover:bg-zinc-800 transition shadow-md focus:ring-2 focus:ring-zinc-900 focus:ring-offset-2">
+                        Filter Data
+                    </button>
+
+                    @if (request('bulan') || request('tahun'))
+                        <a href="{{ route('dashboard') }}"
+                            class="w-full sm:w-auto text-center px-6 py-3 rounded-2xl font-bold text-red-500 hover:bg-red-50 transition">
+                            Tutup Pencarian
+                        </a>
+                    @endif
+                </form>
+            </div>
+
+            @if (request('bulan') || request('tahun'))
+                <div
+                    class="bg-white overflow-hidden shadow-xl sm:rounded-3xl border border-zinc-100 p-6 sm:p-8 transition-all duration-300">
+                    <div class="mb-6 flex justify-between items-center">
+                        <h3 class="text-xl font-bold text-zinc-900 tracking-tight">
+                            Hasil Pencarian Project
+                            @if (request('bulan') && request('tahun'))
+                                Periode {{ $bulans[request('bulan')] }} {{ request('tahun') }}
+                            @elseif(request('bulan'))
+                                Bulan {{ $bulans[request('bulan')] }}
+                            @elseif(request('tahun'))
+                                Tahun {{ request('tahun') }}
+                            @endif
+                        </h3>
+                    </div>
+
+                    <div class="overflow-x-auto rounded-2xl border border-zinc-200">
+                        <table class="min-w-full divide-y divide-zinc-200">
+                            <thead class="bg-zinc-50">
+                                <tr>
+                                    <th class="px-6 py-4 text-left text-xs font-bold text-zinc-500 uppercase">Pelanggan
+                                    </th>
+                                    <th class="px-6 py-4 text-left text-xs font-bold text-zinc-500 uppercase">Paket</th>
+                                    <th class="px-6 py-4 text-left text-xs font-bold text-zinc-500 uppercase">Tgl Pesan
+                                    </th>
+                                    <th class="px-6 py-4 text-left text-xs font-bold text-zinc-500 uppercase">Status
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody class="bg-white divide-y divide-zinc-100">
+                                @forelse ($pemesanan as $item)
+                                    <tr class="hover:bg-zinc-50 transition">
+                                        <td class="px-6 py-4 font-bold text-zinc-900">
+                                            {{ $item->user->name ?? 'User Terhapus' }}</td>
+                                        <td class="px-6 py-4 font-bold text-zinc-700">
+                                            {{ $item->paket->nama_paket ?? 'Paket Terhapus' }}</td>
+                                        <td class="px-6 py-4 text-sm text-zinc-500">
+                                            {{ \Carbon\Carbon::parse($item->tanggal_pesan)->format('d M Y') }}</td>
+                                        <td class="px-6 py-4">
+                                            <span
+                                                class="px-3 py-1 rounded-xl text-xs font-bold border
+                                                {{ $item->status_pemesanan == 'pending' ? 'bg-yellow-50 text-yellow-700 border-yellow-200' : '' }}
+                                                {{ $item->status_pemesanan == 'diproses' ? 'bg-blue-50 text-blue-700 border-blue-200' : '' }}
+                                                {{ $item->status_pemesanan == 'selesai' ? 'bg-green-50 text-green-700 border-green-200' : '' }}
+                                                {{ $item->status_pemesanan == 'dibatalkan' ? 'bg-red-50 text-red-700 border-red-200' : '' }}">
+                                                {{ ucfirst($item->status_pemesanan) }}
+                                            </span>
+                                        </td>
+                                    </tr>
+                                @empty
+                                    <tr>
+                                        <td colspan="4" class="px-6 py-12 text-center">
+                                            <p class="text-lg font-bold text-zinc-900">Data Tidak Ditemukan</p>
+                                            <p class="text-sm text-zinc-500 max-w-sm mx-auto mt-1">
+                                                Tidak ada transaksi pesanan yang sesuai dengan filter pencarian bulan
+                                                dan tahun yang Anda pilih.
+                                            </p>
+                                        </td>
+                                    </tr>
+                                @endforelse
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            @endif
+
         </div>
     </div>
 </x-app-layout>

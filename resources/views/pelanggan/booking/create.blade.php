@@ -128,10 +128,12 @@
                     <div class="w-full sm:w-1/2">
                         <label class="block text-sm font-bold text-zinc-700 mb-2">Tanggal Pengambilan Gambar /
                             Produksi</label>
+
                         <input type="date" name="tanggal_pengerjaan" value="{{ old('tanggal_pengerjaan') }}"
-                            min="{{ date('Y-m-d') }}" onclick="this.showPicker()"
+                            min="{{ \Carbon\Carbon::now()->addDays(3)->format('Y-m-d') }}" onclick="this.showPicker()"
                             class="w-full rounded-2xl border-zinc-200 bg-zinc-50 py-3 px-4 focus:border-[#FCBF49] focus:ring-[#FCBF49] transition duration-200 text-zinc-800 font-bold cursor-pointer shadow-sm"
                             required>
+
                         <p
                             class="text-xs text-zinc-500 font-medium mt-3 flex items-start sm:items-center bg-zinc-50 p-3 rounded-xl border border-zinc-100">
                             <svg class="w-5 h-5 mr-2 text-[#FCBF49] shrink-0" fill="none" stroke="currentColor"
@@ -139,7 +141,8 @@
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                             </svg>
-                            Pilih estimasi tanggal dimulainya project. Jadwal pasti akan dikonfirmasi lebih lanjut oleh
+                            Pilih estimasi tanggal dimulainya project (Minimal H-3). Jadwal pasti akan dikonfirmasi
+                            lebih lanjut oleh
                             tim admin kami.
                         </p>
                     </div>

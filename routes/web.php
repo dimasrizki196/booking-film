@@ -11,13 +11,14 @@ use App\Http\Controllers\BookingController;
 use App\Http\Controllers\RekomendasiController;
 use App\Http\Controllers\HomeController;
 use App\Http\Middleware\IsAdmin;
+use App\Http\Controllers\DashboardController;
 
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
 
-Route::get('/dashboard', function () {
-    return view('dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
+Route::get('/dashboard', [DashboardController::class, 'index'])
+    ->middleware(['auth', 'verified'])
+    ->name('dashboard');
 
 Route::middleware(['auth', IsAdmin::class])->prefix('admin')->name('admin.')->group(function () {
     Route::resource('users', UserController::class);
