@@ -32,14 +32,9 @@ class BookingController extends Controller
 
     public function store(Request $request)
     {
-        $minBookingDate = Carbon::today()->addDays(3)->format('Y-m-d');
-
         $request->validate([
             'paket_id' => 'required|exists:paket_layanans,id',
-            'tanggal_pengerjaan' => 'required|date|after_or_equal:' . $minBookingDate,
-            'catatan_customer' => 'nullable|string|max:1000',
-        ], [
-            'tanggal_pengerjaan.after_or_equal' => 'Maaf, tanggal pengerjaan minimal H-3 dari hari ini (' . Carbon::parse($minBookingDate)->format('d M Y') . ').'
+            'tanggal_pengerjaan' => 'required|date|after_or_equal:today', // Minimal booking hari ini
         ]);
 
         $paket = PaketLayanan::findOrFail($request->paket_id);

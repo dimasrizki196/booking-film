@@ -89,7 +89,7 @@
 
                 <div class="flex items-center gap-4 pt-6 border-t border-zinc-100">
                     <button type="submit"
-                        class="inline-flex items-center px-6 py-3 bg-zinc-900 border border-transparent rounded-xl font-extrabold text-sm text-[#FCBF49] tracking-widest hover:bg-zinc-800 focus:outline-none focus:ring-2 focus:ring-[#FCBF49] focus:ring-offset-2 transition ease-in-out duration-150 shadow-md">
+                        class="inline-flex items-center px-6 py-3 bg-blue-600 border border-transparent rounded-xl font-extrabold text-sm text-white uppercase tracking-widest hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition ease-in-out duration-150 shadow-md">
                         SIMPAN PERUBAHAN
                     </button>
                     <a href="{{ route('admin.pemesanan.index') }}"

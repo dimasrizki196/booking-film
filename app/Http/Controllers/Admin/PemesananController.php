@@ -1,63 +1,65 @@
 <?php
 
-namespace App\Http\Controllers\Admin;
+namespace App\Http\Controllers;
 
-use App\Http\Controllers\Controller;
+use App\Models\PaketLayanan;
 use App\Models\Pemesanan;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Carbon\Carbon; // Wajib di-import untuk manipulasi tanggal
 
-class PemesananController extends Controller
+class BookingController extends Controller
 {
     public function index()
     {
-        // Mengambil semua data pemesanan beserta relasinya
-        $pemesanan = Pemesanan::with(['user', 'paket', 'jadwal'])->latest()->get();
-        return view('admin.pemesanan.index', compact('pemesanan'));
+        // Mengambil riwayat pesanan khusus untuk user yang sedang login
+        $riwayat = Pemesanan::with('paket', 'jadwal')
+            ->where('user_id', Auth::id())
+            ->latest()
+            ->get();
+
+        return view('pelanggan.booking.index', compact('riwayat'));
     }
 
-    public function edit(Pemesanan $pemesanan)
+    public function create()
     {
-        // Load relasi agar data pelanggan dan jadwal bisa ditampilkan di form
-        $pemesanan->load(['user', 'paket', 'jadwal']);
-        return view('admin.pemesanan.edit', compact('pemesanan'));
+        // Melempar data paket agar bisa dipilih di form dropdown/card
+        $paket = PaketLayanan::all();
+
+        // Melempar tanggal H+3 ke view agar Fajar bisa membatasinya langsung di kalender HTML
+        $minDate = Carbon::today()->addDays(3)->format('Y-m-d');
+
+        return view('pelanggan.booking.create', compact('paket', 'minDate'));
     }
 
-    public function update(Request $request, Pemesanan $pemesanan)
+    public function store(Request $request)
     {
-        // 1. Validasi input status dan jadwal
+        // Mendapatkan tanggal H+3 dari hari ini
+        $minBookingDate = Carbon::today()->addDays(3)->format('Y-m-d');
+
         $request->validate([
-            'status_pemesanan' => 'required|in:pending,diproses,selesai,dibatalkan',
-            'tanggal_mulai' => 'nullable|date',
-            'tanggal_selesai' => 'nullable|date|after_or_equal:tanggal_mulai',
-            'lokasi_produksi' => 'nullable|string|max:255',
-            'keterangan' => 'nullable|string',
+            'paket_id' => 'required|exists:paket_layanans,id',
+            // Validasi diubah: minimal H-3
+            'tanggal_pengerjaan' => 'required|date|after_or_equal:' . $minBookingDate,
+            // Validasi catatan pelanggan (opsional)
+            'catatan_customer' => 'nullable|string|max:1000',
+        ], [
+            // Custom pesan error agar lebih ramah dibaca pelanggan
+            'tanggal_pengerjaan.after_or_equal' => 'Maaf, tanggal pengerjaan minimal H-3 dari hari ini (' . Carbon::parse($minBookingDate)->format('d M Y') . ').'
         ]);
 
-        // 2. Update status pemesanan
-        $pemesanan->update([
-            'status_pemesanan' => $request->status_pemesanan
+        $paket = PaketLayanan::findOrFail($request->paket_id);
+
+        Pemesanan::create([
+            'user_id' => Auth::id(),
+            'paket_id' => $paket->id,
+            'tanggal_pesan' => now(),
+            'tanggal_pengerjaan' => $request->tanggal_pengerjaan,
+            'catatan_customer' => $request->catatan_customer, // Menyimpan catatan ke database
+            'status_pemesanan' => 'pending',
+            'total_harga' => $paket->harga,
         ]);
 
-        // 3. Logika update/create Jadwal Produksi
-        // Jika form tanggal mulai & selesai diisi, simpan ke tabel jadwal_produksis
-        if ($request->filled('tanggal_mulai') && $request->filled('tanggal_selesai')) {
-            $pemesanan->jadwal()->updateOrCreate(
-                ['pemesanan_id' => $pemesanan->id],
-                [
-                    'tanggal_mulai' => $request->tanggal_mulai,
-                    'tanggal_selesai' => $request->tanggal_selesai,
-                    'lokasi_produksi' => $request->lokasi_produksi,
-                    'keterangan' => $request->keterangan,
-                ]
-            );
-        }
-
-        return redirect()->route('admin.pemesanan.index')->with('success', 'Status pesanan dan jadwal produksi berhasil diperbarui.');
-    }
-
-    public function destroy(Pemesanan $pemesanan)
-    {
-        $pemesanan->delete();
-        return redirect()->route('admin.pemesanan.index')->with('success', 'Data pemesanan berhasil dihapus.');
+        return redirect()->route('booking.index')->with('success', 'Booking berhasil! Tim Next Project Film akan segera memproses pesanan Anda.');
     }
 }

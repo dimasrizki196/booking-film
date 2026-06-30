@@ -9,6 +9,8 @@ class Pemesanan extends Model
 {
     use HasFactory;
 
+    protected $table = 'pemesanans'; // Sesuai nama tabel di DB
+
     protected $fillable = [
         'user_id',
         'paket_id',
@@ -19,18 +21,19 @@ class Pemesanan extends Model
         'catatan_customer',
     ];
 
+    // PERBAIKAN DI SINI
     public function user()
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(User::class, 'user_id', 'id');
     }
 
     public function paket()
     {
-        return $this->belongsTo(PaketLayanan::class, 'paket_id');
+        return $this->belongsTo(PaketLayanan::class, 'paket_id', 'id');
     }
 
     public function jadwal()
     {
-        return $this->hasOne(JadwalProduksi::class);
+        return $this->hasOne(JadwalProduksi::class, 'pemesanan_id', 'id');
     }
 }

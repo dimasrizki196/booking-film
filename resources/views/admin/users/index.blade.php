@@ -1,11 +1,12 @@
 <x-app-layout>
-<x-slot name="header">
-    <h2 class="text-3xl text-zinc-900 leading-tight tracking-tight" style="font-family: 'Playfair Display', serif; font-weight: 800;">
-        {{ __('Kelola Data Pelanggan') }}
-    </h2>
-</x-slot>
+    <x-slot name="header">
+        <h2 class="text-3xl text-zinc-900 leading-tight tracking-tight"
+            style="font-family: 'Playfair Display', serif; font-weight: 800;">
+            {{ __('Kelola Data Pelanggan') }}
+        </h2>
+    </x-slot>
 
-<div class="py-8 sm:py-12">
+    <div class="py-8 sm:py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             <div class="bg-white overflow-hidden shadow-xl sm:rounded-3xl border border-zinc-100 p-6 sm:p-8">
 
@@ -70,7 +71,7 @@
                                     </td>
                                     <td class="px-6 py-5 whitespace-nowrap text-sm">
                                         <a href="{{ route('admin.users.edit', $user->id) }}"
-                                            class="font-bold text-[#FCBF49] hover:text-yellow-600 transition-colors mr-4">
+                                            class="font-bold text-blue-600 hover:text-blue-800 transition-colors mr-4">
                                             Edit
                                         </a>
 
@@ -95,7 +96,8 @@
                                                 d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z">
                                             </path>
                                         </svg>
-                                        <p class="text-sm font-semibold text-zinc-500">Belum ada data pelanggan yang terdaftar.</p>
+                                        <p class="text-sm font-semibold text-zinc-500">Belum ada data pelanggan yang
+                                            terdaftar.</p>
                                     </td>
                                 </tr>
                             @endforelse
