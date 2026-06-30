@@ -29,6 +29,7 @@
             <form action="{{ route('booking.store') }}" method="POST" class="space-y-6">
                 @csrf
 
+                <!-- Pilihan Paket -->
                 <div>
                     <label class="block text-sm font-bold text-zinc-700 mb-2">Pilih Paket Layanan</label>
                     <select name="paket_id"
@@ -44,12 +45,13 @@
                     </select>
                 </div>
 
+                <!-- Tanggal Pengerjaan -->
                 <div>
                     <label class="block text-sm font-bold text-zinc-700 mb-2">Tanggal Pengambilan Gambar /
                         Produksi</label>
                     <input type="date" name="tanggal_pengerjaan" value="{{ old('tanggal_pengerjaan') }}"
-                        min="{{ date('Y-m-d') }}"
-                        class="w-full sm:w-1/2 rounded-2xl border-zinc-200 bg-zinc-50 py-3 px-4 focus:border-[#FCBF49] focus:ring-[#FCBF49] transition duration-200 text-zinc-800 font-medium"
+                        min="{{ $minDate ?? \Carbon\Carbon::now()->addDays(3)->format('Y-m-d') }}"
+                        class="w-full rounded-2xl border-zinc-200 bg-zinc-50 py-3 px-4 focus:border-[#FCBF49] focus:ring-[#FCBF49] transition duration-200 font-medium text-zinc-800"
                         required>
                     <p class="text-xs text-zinc-500 font-medium mt-2 flex items-center">
                         <svg class="w-4 h-4 mr-1.5 text-zinc-400" fill="none" stroke="currentColor"
@@ -57,10 +59,19 @@
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                         </svg>
-                        Pilih estimasi tanggal dimulainya project. Jadwal pasti akan dikonfirmasi oleh admin.
+                        Pemesanan minimal H-3. Jadwal pasti akan dikonfirmasi oleh admin.
                     </p>
                 </div>
 
+                <!-- Catatan Tambahan (Sekarang tidak menumpuk di dalam div tanggal) -->
+                <div>
+                    <label class="block text-sm font-bold text-zinc-700 mb-2">Catatan Tambahan (Opsional)</label>
+                    <textarea name="catatan_customer" rows="4"
+                        placeholder="Misal: Saya ingin video bergaya vintage, atau lokasi syuting di kafe XYZ..."
+                        class="w-full rounded-2xl border-zinc-200 bg-zinc-50 py-3 px-4 focus:border-[#FCBF49] focus:ring-[#FCBF49] transition duration-200 font-medium text-zinc-800">{{ old('catatan_customer') }}</textarea>
+                </div>
+
+                <!-- Tombol Aksi -->
                 <div class="flex flex-col sm:flex-row items-center gap-4 pt-6 mt-6 border-t border-zinc-100">
                     <button type="submit"
                         class="w-full sm:w-auto inline-flex justify-center items-center px-8 py-3 bg-zinc-900 border border-transparent rounded-xl font-extrabold text-sm text-[#FCBF49] uppercase tracking-widest hover:bg-zinc-800 focus:outline-none focus:ring-2 focus:ring-[#FCBF49] focus:ring-offset-2 transition ease-in-out duration-150 shadow-md">

@@ -15,7 +15,8 @@ class Pemesanan extends Model
         'tanggal_pesan',
         'tanggal_pengerjaan',
         'status_pemesanan',
-        'total_harga'
+        'total_harga',
+        'catatan_customer',
     ];
 
     public function user()
