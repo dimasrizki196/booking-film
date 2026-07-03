@@ -53,7 +53,7 @@
                                     Status</th>
                                 <th scope="col"
                                     class="px-6 py-4 text-left text-xs font-bold text-zinc-500 uppercase tracking-wider">
-                                    Jadwal Fix (Dari Admin)</th>
+                                    Jadwal Fix / Keterangan</th>
                             </tr>
                         </thead>
                         <tbody class="bg-white divide-y divide-zinc-100">
@@ -82,8 +82,24 @@
                                             {{ ucfirst($item->status_pemesanan) }}
                                         </span>
                                     </td>
-                                    <td class="px-6 py-5 whitespace-nowrap">
-                                        @if ($item->jadwal)
+                                    <td class="px-6 py-5">
+                                        @if ($item->status_pemesanan == 'dibatalkan')
+                                            <div class="p-3 bg-red-50/80 border border-red-100 rounded-xl max-w-md">
+                                                <div class="text-xs font-bold text-red-800 flex items-center mb-1">
+                                                    <svg class="w-3.5 h-3.5 mr-1 text-red-600 flex-shrink-0"
+                                                        fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                                            stroke-width="2"
+                                                            d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z">
+                                                        </path>
+                                                    </svg>
+                                                    Alasan Pembatalan:
+                                                </div>
+                                                <p class="text-xs text-red-700 font-medium leading-relaxed">
+                                                    {{ !empty($item->alasan_batal) ? $item->alasan_batal : 'Pesanan ini telah dibatalkan oleh Admin.' }}
+                                                </p>
+                                            </div>
+                                        @elseif ($item->jadwal)
                                             <div class="text-sm font-bold text-green-600 mb-1">Mulai:
                                                 {{ \Carbon\Carbon::parse($item->jadwal->tanggal_mulai)->format('d M Y') }}
                                             </div>

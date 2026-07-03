@@ -19,6 +19,7 @@ class Pemesanan extends Model
         'status_pemesanan',
         'total_harga',
         'catatan_customer',
+        'alasan_batal',
     ];
 
     // PERBAIKAN DI SINI

@@ -99,29 +99,29 @@
 
                             <ul class="flex flex-col text-left">
                                 <li id="waktu-option-santai" data-name="Santai"
-                                    data-details="Bisa lebih dari 7 hari pengerjaan"
-                                    @click="selectItem('santai', 'Santai', 'Bisa lebih dari 7 hari pengerjaan')"
+                                    data-details="Proses bisa lebih dari 1 Bulan"
+                                    @click="selectItem('santai', 'Santai', 'Proses bisa lebih dari 1 Bulan')"
                                     class="relative cursor-pointer select-none py-3 px-5 hover:bg-zinc-50 transition-colors border-b border-zinc-50 last:border-0"
                                     :class="selectedId == 'santai' ? 'bg-zinc-50' : ''">
                                     <div>
                                         <span class="block font-bold"
                                             :class="selectedId == 'santai' ? 'text-zinc-900' : 'text-zinc-700'">Santai</span>
-                                        <span class="block text-xs font-medium text-zinc-400 mt-0.5">Bisa lebih dari 7
-                                            hari pengerjaan</span>
+                                        <span class="block text-xs font-medium text-zinc-400 mt-0.5">Proses bisa lebih dari 1
+                                            Bulan</span>
                                     </div>
                                 </li>
 
                                 <li id="waktu-option-cepat" data-name="Sangat Mendesak"
-                                    data-details="Harus selesai di bawah 7 hari"
-                                    @click="selectItem('cepat', 'Sangat Mendesak', 'Harus selesai di bawah 7 hari')"
+                                    data-details="Pengerjaan selesai di bawah 1 Bulan "
+                                    @click="selectItem('cepat', 'Sangat Mendesak', 'Pengerjaan selesai di bawah 1 Bulan')"
                                     class="relative cursor-pointer select-none py-3 px-5 hover:bg-zinc-50 transition-colors border-b border-zinc-50 last:border-0"
                                     :class="selectedId == 'cepat' ? 'bg-zinc-50' : ''">
                                     <div>
                                         <span class="block font-bold"
                                             :class="selectedId == 'cepat' ? 'text-zinc-900' : 'text-zinc-700'">Sangat
                                             Mendesak</span>
-                                        <span class="block text-xs font-bold text-red-500 mt-0.5">Harus selesai di bawah
-                                            7 hari</span>
+                                        <span class="block text-xs font-bold text-red-500 mt-0.5">Pengerjaan selesai di bawah
+                                            1 Bulan</span>
                                     </div>
                                 </li>
                             </ul>

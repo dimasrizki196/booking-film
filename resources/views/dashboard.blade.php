@@ -1,4 +1,6 @@
 <x-app-layout>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
     <x-slot name="header">
         <h2 class="text-3xl text-zinc-900 leading-tight tracking-tight"
             style="font-family: 'Playfair Display', serif; font-weight: 800;">
@@ -7,7 +9,6 @@
     </x-slot>
 
     @php
-        // Deklarasi array bulan dan tahun agar bisa dipakai di form dan judul tabel
         $bulans = [
             '01' => 'Januari',
             '02' => 'Februari',
@@ -45,11 +46,11 @@
                     <div class="flex flex-wrap gap-4">
                         <a href="{{ route('admin.pemesanan.index') }}"
                             class="bg-[#FCBF49] text-zinc-950 px-6 py-3 rounded-xl font-bold hover:bg-yellow-500 transition shadow-lg flex items-center gap-2">
-                            <i class="fa-solid fa-list-check"></i> Kelola Detail Pemesanan
+                            Kelola Detail Pemesanan
                         </a>
                         <a href="{{ route('admin.laporan.index') }}"
                             class="bg-white/10 text-white border border-white/20 px-6 py-3 rounded-xl font-bold hover:bg-white/20 transition shadow-lg backdrop-blur-sm flex items-center gap-2">
-                            <i class="fa-solid fa-chart-pie"></i> Lihat Laporan Lengkap
+                            Lihat Laporan Lengkap
                         </a>
                     </div>
                 </div>
@@ -63,6 +64,8 @@
 
                 <form method="GET" action="{{ route('dashboard') }}"
                     class="flex flex-col sm:flex-row gap-4 items-center">
+                    <input type="hidden" name="chart_tahun" value="{{ request('chart_tahun', date('Y')) }}">
+
                     <div class="flex-1 w-full">
                         <select name="bulan"
                             class="w-full appearance-none rounded-2xl border-zinc-200 bg-zinc-50 py-3 px-4 font-medium text-zinc-700 focus:border-[#FCBF49] focus:ring-[#FCBF49]">
@@ -92,7 +95,7 @@
                         Filter Data
                     </button>
 
-                    @if (request('bulan') || request('tahun'))
+                    @if (request()->has('bulan') || request()->has('tahun'))
                         <a href="{{ route('dashboard') }}"
                             class="w-full sm:w-auto text-center px-6 py-3 rounded-2xl font-bold text-red-500 hover:bg-red-50 transition">
                             Tutup Pencarian
@@ -101,20 +104,26 @@
                 </form>
             </div>
 
-            @if (request('bulan') || request('tahun'))
+            @if (request()->has('bulan') || request()->has('tahun'))
                 <div
                     class="bg-white overflow-hidden shadow-xl sm:rounded-3xl border border-zinc-100 p-6 sm:p-8 transition-all duration-300">
-                    <div class="mb-6 flex justify-between items-center">
+                    <div class="mb-6">
                         <h3 class="text-xl font-bold text-zinc-900 tracking-tight">
                             Hasil Pencarian Project
-                            @if (request('bulan') && request('tahun'))
-                                Periode {{ $bulans[request('bulan')] }} {{ request('tahun') }}
-                            @elseif(request('bulan'))
-                                Bulan {{ $bulans[request('bulan')] }}
-                            @elseif(request('tahun'))
-                                Tahun {{ request('tahun') }}
-                            @endif
                         </h3>
+                        <p class="text-sm text-zinc-500 mt-1">
+                            Terdeteksi <span class="font-bold text-zinc-900">{{ $pemesanan->count() }}</span> pesanan
+                            pada
+                            @if (request('bulan') && request('tahun'))
+                                bulan {{ $bulans[request('bulan')] }} tahun {{ request('tahun') }}
+                            @elseif(request('bulan'))
+                                bulan {{ $bulans[request('bulan')] }} (Semua Tahun)
+                            @elseif(request('tahun'))
+                                tahun {{ request('tahun') }} (Semua Bulan)
+                            @else
+                                semua periode bulan dan tahun
+                            @endif.
+                        </p>
                     </div>
 
                     <div class="overflow-x-auto rounded-2xl border border-zinc-200">
@@ -155,8 +164,8 @@
                                         <td colspan="4" class="px-6 py-12 text-center">
                                             <p class="text-lg font-bold text-zinc-900">Data Tidak Ditemukan</p>
                                             <p class="text-sm text-zinc-500 max-w-sm mx-auto mt-1">
-                                                Tidak ada transaksi pesanan yang sesuai dengan filter pencarian bulan
-                                                dan tahun yang Anda pilih.
+                                                Tidak ada transaksi pesanan yang sesuai dengan kriteria filter pencarian
+                                                Anda.
                                             </p>
                                         </td>
                                     </tr>
@@ -167,6 +176,101 @@
                 </div>
             @endif
 
+            <div class="bg-white p-6 sm:p-8 rounded-3xl shadow-xl border border-zinc-100">
+                <div class="flex flex-col sm:flex-row justify-between sm:items-center gap-4 mb-6">
+                    <div>
+                        <h3 class="text-xl font-bold text-zinc-900 tracking-tight">Statistik Pesanan Bulanan</h3>
+                        <p class="text-sm text-zinc-500">Perbandingan jumlah pesanan aktif per bulan pada tahun yang
+                            dipilih.</p>
+                    </div>
+
+                    <form method="GET" action="{{ route('dashboard') }}" class="flex items-center gap-2">
+                        <input type="hidden" name="bulan" value="{{ request('bulan') }}">
+                        <input type="hidden" name="tahun" value="{{ request('tahun') }}">
+
+                        <select name="chart_tahun"
+                            class="rounded-xl border-zinc-200 bg-zinc-50 py-2 px-4 font-bold text-zinc-700 text-sm focus:border-[#FCBF49] focus:ring-[#FCBF49]">
+                            @for ($i = $currentYear; $i >= $currentYear - 5; $i--)
+                                <option value="{{ $i }}" {{ $chartYear == $i ? 'selected' : '' }}>
+                                    Tahun {{ $i }}
+                                </option>
+                            @endfor
+                        </select>
+                        <button type="submit"
+                            class="bg-zinc-900 text-white font-bold text-xs px-4 py-2.5 rounded-xl hover:bg-zinc-800 transition">
+                            Filter Grafik
+                        </button>
+                    </form>
+                </div>
+
+                <div class="relative h-[300px] sm:h-[400px] w-full">
+                    <canvas id="orderChart"></canvas>
+                </div>
+            </div>
+
         </div>
     </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const ctx = document.getElementById('orderChart').getContext('2d');
+
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov',
+                        'Des'
+                    ],
+                    datasets: [{
+                            label: 'Pending',
+                            data: @json($dataPending),
+                            backgroundColor: '#FDE047',
+                            borderColor: '#EAB308',
+                            borderWidth: 1,
+                            borderRadius: 6
+                        },
+                        {
+                            label: 'Diproses',
+                            data: @json($dataDiproses),
+                            backgroundColor: '#60A5FA',
+                            borderColor: '#3B82F6',
+                            borderWidth: 1,
+                            borderRadius: 6
+                        },
+                        {
+                            label: 'Selesai',
+                            data: @json($dataSelesai),
+                            backgroundColor: '#4ADE80',
+                            borderColor: '#22C55E',
+                            borderWidth: 1,
+                            borderRadius: 6
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                stepSize: 1
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                            labels: {
+                                font: {
+                                    family: "'Montserrat', sans-serif",
+                                    weight: 'bold'
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        });
+    </script>
 </x-app-layout>
