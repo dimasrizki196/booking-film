@@ -108,7 +108,7 @@
                 Beyond <span class="text-[#FCBF49]">The Lens</span>
             </h1>
             <p class="text-base sm:text-lg lg:text-xl text-zinc-300 mb-8 font-medium leading-relaxed max-w-xl">
-                NextProject adalah rumah produksi yang mengubah narasi menjadi mahakarya visual. Kami membangun emosi,
+                Next Project Film adalah rumah produksi yang mengubah narasi menjadi mahakarya visual. Kami membangun emosi,
                 memperkuat identitas, dan mengabadikan momen dengan standar sinematik dunia.
             </p>
             <div class="flex flex-col sm:flex-row gap-4">
