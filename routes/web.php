@@ -26,6 +26,8 @@ Route::middleware(['auth', IsAdmin::class])->prefix('admin')->name('admin.')->gr
     Route::resource('portofolio', PortofolioController::class);
     Route::resource('pemesanan', PemesananController::class);
     Route::get('laporan', [LaporanController::class, 'index'])->name('laporan.index');
+    Route::get('laporan/pdf', [LaporanController::class, 'exportPdf'])->name('laporan.pdf');
+    Route::get('laporan/excel', [LaporanController::class, 'exportExcel'])->name('laporan.excel');
 });
 
 Route::middleware('auth')->group(function () {

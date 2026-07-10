@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 
-#[Fillable(['nama_paket', 'deskripsi', 'harga', 'durasi_pengerjaan'])]
+#[Fillable(['nama_paket', 'deskripsi', 'detail_paket', 'harga', 'durasi_pengerjaan'])]
 class PaketLayanan extends Model
 {
     use HasFactory;

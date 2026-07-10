@@ -24,6 +24,7 @@ class PaketLayananController extends Controller
         $request->validate([
             'nama_paket' => 'required|string|max:255',
             'deskripsi' => 'required|string',
+            'detail_paket' => 'nullable|string',
             'harga' => 'required|numeric|min:0', // Validasi angka minimal 0
             'durasi_pengerjaan' => 'required|integer|min:1', // Minimal 1 hari
         ]);
@@ -43,6 +44,7 @@ class PaketLayananController extends Controller
         $request->validate([
             'nama_paket' => 'required|string|max:255',
             'deskripsi' => 'required|string',
+            'detail_paket' => 'nullable|string',
             'harga' => 'required|numeric|min:0',
             'durasi_pengerjaan' => 'required|integer|min:1',
         ]);
