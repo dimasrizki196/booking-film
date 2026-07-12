@@ -14,38 +14,33 @@ class DashboardController extends Controller
         $user = Auth::user();
 
         if ($user->role === 'admin') {
-            // ====================================================
-            // 1. LOGIKA UNTUK TABEL DATA PROJECT (Tetap Sama)
-            // ====================================================
-            $pemesanan = null;
+            // 1. DIBUAT BASE QUERY KHUSUS UNTUK MENGHITUNG KARTU STATUS
+            // Ini agar filter bulan & tahun juga otomatis memengaruhi jumlah di kartu
+            $countQuery = Pemesanan::query();
 
-            if ($request->has('bulan') || $request->has('tahun')) {
-                $query = Pemesanan::with(['user', 'paket', 'jadwal']);
+            // 2. LOGIKA UNTUK TABEL DATA PROJECT
+            $query = Pemesanan::with(['user', 'paket', 'jadwal']);
 
-                if ($request->filled('bulan')) {
-                    $query->whereMonth('tanggal_pesan', $request->bulan);
-                }
-                if ($request->filled('tahun')) {
-                    $query->whereYear('tanggal_pesan', $request->tahun);
-                }
-
-                $pemesanan = $query->latest('tanggal_pesan')->get();
+            if ($request->filled('bulan')) {
+                $query->whereMonth('tanggal_pesan', $request->bulan);
+                $countQuery->whereMonth('tanggal_pesan', $request->bulan); // Ikut filter kartu
+            }
+            if ($request->filled('tahun')) {
+                $query->whereYear('tanggal_pesan', $request->tahun);
+                $countQuery->whereYear('tanggal_pesan', $request->tahun); // Ikut filter kartu
             }
 
-            // ====================================================
-            // 2. OVERALL JUMLAH STATUS PROJECT (BARU)
-            // ====================================================
-            $overall = [
-                'total' => Pemesanan::count(),
-                'pending' => Pemesanan::where('status_pemesanan', 'pending')->count(),
-                'diproses' => Pemesanan::where('status_pemesanan', 'diproses')->count(),
-                'selesai' => Pemesanan::where('status_pemesanan', 'selesai')->count(),
-                'dibatalkan' => Pemesanan::where('status_pemesanan', 'dibatalkan')->count(),
-            ];
+            $pemesanan = $query->latest('tanggal_pesan')->get();
 
-            // ====================================================
-            // 3. LOGIKA UNTUK CHART PER BULAN (Tetap Sama)
-            // ====================================================
+            // 3. HITUNG JUMLAH STATUS SECARA AKURAT MENGGUNAKAN CLONE QUERY
+            // Menggunakan clone agar kondisi where status tidak saling bertabrakan
+            $countPending = (clone $countQuery)->where('status_pemesanan', 'pending')->count();
+            $countDiproses = (clone $countQuery)->where('status_pemesanan', 'diproses')->count();
+            $countSelesai = (clone $countQuery)->where('status_pemesanan', 'selesai')->count();
+            $countDibatalkan = (clone $countQuery)->where('status_pemesanan', 'dibatalkan')->count();
+
+
+            // 4. LOGIKA UNTUK FILTER CHART BULANAN (TETAP SEPERTI SEBELUMNYA)
             $chartYear = $request->input('chart_tahun', date('Y'));
             $months = ['01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12'];
             $dataPending = [];
@@ -53,42 +48,41 @@ class DashboardController extends Controller
             $dataSelesai = [];
 
             foreach ($months as $m) {
-                $dataPending[] = Pemesanan::whereYear('tanggal_pesan', $chartYear)
-                    ->whereMonth('tanggal_pesan', $m)->where('status_pemesanan', 'pending')->count();
-                $dataDiproses[] = Pemesanan::whereYear('tanggal_pesan', $chartYear)
-                    ->whereMonth('tanggal_pesan', $m)->where('status_pemesanan', 'diproses')->count();
-                $dataSelesai[] = Pemesanan::whereYear('tanggal_pesan', $chartYear)
-                    ->whereMonth('tanggal_pesan', $m)->where('status_pemesanan', 'selesai')->count();
+                $dataPending[] = Pemesanan::whereYear('tanggal_pesan', $chartYear)->whereMonth('tanggal_pesan', $m)->where('status_pemesanan', 'pending')->count();
+                $dataDiproses[] = Pemesanan::whereYear('tanggal_pesan', $chartYear)->whereMonth('tanggal_pesan', $m)->where('status_pemesanan', 'diproses')->count();
+                $dataSelesai[] = Pemesanan::whereYear('tanggal_pesan', $chartYear)->whereMonth('tanggal_pesan', $m)->where('status_pemesanan', 'selesai')->count();
             }
 
-            // ====================================================
-            // 4. VISUALISASI LOAD PROJECT PER TANGGAL (BARU)
-            // Mengambil data pesanan harian untuk 30 hari terakhir
-            // ====================================================
-            $loadTanggal = [];
-            $loadTotal = [];
+            // 5. LOGIKA LOAD PROJECT PER TANGGAL (CONTOH DATA TERDEKAT)
+            // Ambil data project berjalan 7 hari ke depan untuk grafik garis load
+            $upcomingProjects = Pemesanan::where('status_pemesanan', 'diproses')
+                ->where('tanggal_pengerjaan', '>=', now()->toDateString())
+                ->orderBy('tanggal_pengerjaan', 'asc')
+                ->take(7)
+                ->get()
+                ->groupBy('tanggal_pengerjaan');
 
-            $startDate = Carbon::now()->subDays(29);
-            for ($i = 0; $i < 30; $i++) {
-                $date = $startDate->copy()->addDays($i);
-                $loadTanggal[] = $date->format('d M'); // Format: 01 Jul
-
-                // Menghitung jumlah pesanan masuk pada tanggal tersebut
-                $loadTotal[] = Pemesanan::whereDate('tanggal_pesan', $date->format('Y-m-d'))->count();
+            $loadLabels = [];
+            $loadValues = [];
+            foreach ($upcomingProjects as $date => $projects) {
+                $loadLabels[] = \Carbon\Carbon::parse($date)->format('d M');
+                $loadValues[] = $projects->count();
             }
 
             return view('dashboard', compact(
                 'pemesanan',
-                'overall',
+                'chartYear',
                 'dataPending',
                 'dataDiproses',
                 'dataSelesai',
-                'chartYear',
-                'loadTanggal',
-                'loadTotal'
+                'countPending',
+                'countDiproses',
+                'countSelesai',
+                'countDibatalkan',
+                'loadLabels',
+                'loadValues'
             ));
         }
-
         // ====================================================
         // LOGIKA PELANGGAN
         // ====================================================

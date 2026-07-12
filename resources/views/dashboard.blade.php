@@ -56,6 +56,44 @@
                 </div>
             </div>
 
+            <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                <div class="bg-white p-5 rounded-3xl shadow-md border border-zinc-100 flex flex-col justify-between">
+                    <span class="text-xs font-bold text-zinc-400 uppercase tracking-wider">Total Pending</span>
+                    <div class="flex items-baseline gap-2 mt-2">
+                        <span class="text-3xl font-black text-zinc-900">{{ $countPending ?? 0 }}</span>
+                        <span
+                            class="text-xs font-bold px-2 py-0.5 bg-yellow-50 text-yellow-700 border border-yellow-200 rounded-lg">Pesanan</span>
+                    </div>
+                </div>
+
+                <div class="bg-white p-5 rounded-3xl shadow-md border border-zinc-100 flex flex-col justify-between">
+                    <span class="text-xs font-bold text-zinc-400 uppercase tracking-wider">Total Diproses</span>
+                    <div class="flex items-baseline gap-2 mt-2">
+                        <span class="text-3xl font-black text-zinc-900">{{ $countDiproses ?? 0 }}</span>
+                        <span
+                            class="text-xs font-bold px-2 py-0.5 bg-blue-50 text-blue-700 border border-blue-200 rounded-lg">Produksi</span>
+                    </div>
+                </div>
+
+                <div class="bg-white p-5 rounded-3xl shadow-md border border-zinc-100 flex flex-col justify-between">
+                    <span class="text-xs font-bold text-zinc-400 uppercase tracking-wider">Total Selesai</span>
+                    <div class="flex items-baseline gap-2 mt-2">
+                        <span class="text-3xl font-black text-zinc-900">{{ $countSelesai ?? 0 }}</span>
+                        <span
+                            class="text-xs font-bold px-2 py-0.5 bg-green-50 text-green-700 border border-green-200 rounded-lg">Tuntas</span>
+                    </div>
+                </div>
+
+                <div class="bg-white p-5 rounded-3xl shadow-md border border-zinc-100 flex flex-col justify-between">
+                    <span class="text-xs font-bold text-zinc-400 uppercase tracking-wider">Total Dibatalkan</span>
+                    <div class="flex items-baseline gap-2 mt-2">
+                        <span class="text-3xl font-black text-zinc-900">{{ $countDibatalkan ?? 0 }}</span>
+                        <span
+                            class="text-xs font-bold px-2 py-0.5 bg-red-50 text-red-700 border border-red-200 rounded-lg">Batal</span>
+                    </div>
+                </div>
+            </div>
+
             <div class="bg-white p-6 rounded-3xl shadow-xl border border-zinc-100">
                 <div class="mb-4">
                     <h4 class="text-lg font-bold text-zinc-900">Cari Data Project</h4>
@@ -108,9 +146,7 @@
                 <div
                     class="bg-white overflow-hidden shadow-xl sm:rounded-3xl border border-zinc-100 p-6 sm:p-8 transition-all duration-300">
                     <div class="mb-6">
-                        <h3 class="text-xl font-bold text-zinc-900 tracking-tight">
-                            Hasil Pencarian Project
-                        </h3>
+                        <h3 class="text-xl font-bold text-zinc-900 tracking-tight">Hasil Pencarian Project</h3>
                         <p class="text-sm text-zinc-500 mt-1">
                             Terdeteksi <span class="font-bold text-zinc-900">{{ $pemesanan->count() }}</span> pesanan
                             pada
@@ -176,35 +212,48 @@
                 </div>
             @endif
 
-            <div class="bg-white p-6 sm:p-8 rounded-3xl shadow-xl border border-zinc-100">
-                <div class="flex flex-col sm:flex-row justify-between sm:items-center gap-4 mb-6">
-                    <div>
-                        <h3 class="text-xl font-bold text-zinc-900 tracking-tight">Statistik Pesanan Bulanan</h3>
-                        <p class="text-sm text-zinc-500">Perbandingan jumlah pesanan aktif per bulan pada tahun yang
-                            dipilih.</p>
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <div class="bg-white p-6 sm:p-8 rounded-3xl shadow-xl border border-zinc-100 lg:col-span-2">
+                    <div class="flex flex-col sm:flex-row justify-between sm:items-center gap-4 mb-6">
+                        <div>
+                            <h3 class="text-xl font-bold text-zinc-900 tracking-tight">Statistik Pesanan Bulanan</h3>
+                            <p class="text-sm text-zinc-500">Perbandingan jumlah pesanan aktif per bulan pada tahun yang
+                                dipilih.</p>
+                        </div>
+
+                        <form method="GET" action="{{ route('dashboard') }}" class="flex items-center gap-2">
+                            <input type="hidden" name="bulan" value="{{ request('bulan') }}">
+                            <input type="hidden" name="tahun" value="{{ request('tahun') }}">
+
+                            <select name="chart_tahun"
+                                class="rounded-xl border-zinc-200 bg-zinc-50 py-2 px-4 font-bold text-zinc-700 text-sm focus:border-[#FCBF49] focus:ring-[#FCBF49]">
+                                @for ($i = $currentYear; $i >= $currentYear - 5; $i--)
+                                    <option value="{{ $i }}" {{ $chartYear == $i ? 'selected' : '' }}>
+                                        Tahun {{ $i }}
+                                    </option>
+                                @endfor
+                            </select>
+                            <button type="submit"
+                                class="bg-zinc-900 text-white font-bold text-xs px-4 py-2.5 rounded-xl hover:bg-zinc-800 transition">
+                                Filter Grafik
+                            </button>
+                        </form>
                     </div>
 
-                    <form method="GET" action="{{ route('dashboard') }}" class="flex items-center gap-2">
-                        <input type="hidden" name="bulan" value="{{ request('bulan') }}">
-                        <input type="hidden" name="tahun" value="{{ request('tahun') }}">
-
-                        <select name="chart_tahun"
-                            class="rounded-xl border-zinc-200 bg-zinc-50 py-2 px-4 font-bold text-zinc-700 text-sm focus:border-[#FCBF49] focus:ring-[#FCBF49]">
-                            @for ($i = $currentYear; $i >= $currentYear - 5; $i--)
-                                <option value="{{ $i }}" {{ $chartYear == $i ? 'selected' : '' }}>
-                                    Tahun {{ $i }}
-                                </option>
-                            @endfor
-                        </select>
-                        <button type="submit"
-                            class="bg-zinc-900 text-white font-bold text-xs px-4 py-2.5 rounded-xl hover:bg-zinc-800 transition">
-                            Filter Grafik
-                        </button>
-                    </form>
+                    <div class="relative h-[300px] w-full">
+                        <canvas id="orderChart"></canvas>
+                    </div>
                 </div>
 
-                <div class="relative h-[300px] sm:h-[400px] w-full">
-                    <canvas id="orderChart"></canvas>
+                <div class="bg-white p-6 sm:p-8 rounded-3xl shadow-xl border border-zinc-100">
+                    <div class="mb-6">
+                        <h3 class="text-xl font-bold text-zinc-900 tracking-tight">Load Project per Tanggal</h3>
+                        <p class="text-sm text-zinc-500">Visualisasi kepadatan jadwal produksi terdekat.</p>
+                    </div>
+
+                    <div class="relative h-[300px] w-full">
+                        <canvas id="loadProjectChart"></canvas>
+                    </div>
                 </div>
             </div>
 
@@ -213,9 +262,9 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            const ctx = document.getElementById('orderChart').getContext('2d');
-
-            new Chart(ctx, {
+            // --- 1. SCRIPT GRAFIK BULANAN (EXISTING) ---
+            const ctxOrder = document.getElementById('orderChart').getContext('2d');
+            new Chart(ctxOrder, {
                 type: 'bar',
                 data: {
                     labels: ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov',
@@ -223,7 +272,7 @@
                     ],
                     datasets: [{
                             label: 'Pending',
-                            data: @json($dataPending),
+                            data: @json($dataPending ?? []),
                             backgroundColor: '#FDE047',
                             borderColor: '#EAB308',
                             borderWidth: 1,
@@ -231,7 +280,7 @@
                         },
                         {
                             label: 'Diproses',
-                            data: @json($dataDiproses),
+                            data: @json($dataDiproses ?? []),
                             backgroundColor: '#60A5FA',
                             borderColor: '#3B82F6',
                             borderWidth: 1,
@@ -239,7 +288,7 @@
                         },
                         {
                             label: 'Selesai',
-                            data: @json($dataSelesai),
+                            data: @json($dataSelesai ?? []),
                             backgroundColor: '#4ADE80',
                             borderColor: '#22C55E',
                             borderWidth: 1,
@@ -263,10 +312,47 @@
                             position: 'top',
                             labels: {
                                 font: {
-                                    family: "'Montserrat', sans-serif",
                                     weight: 'bold'
                                 }
                             }
+                        }
+                    }
+                }
+            });
+
+            // --- 2. SCRIPT REVISI BARU: GRAFIK LOAD PROJECT PER TANGGAL ---
+            const ctxLoad = document.getElementById('loadProjectChart').getContext('2d');
+            new Chart(ctxLoad, {
+                type: 'line',
+                data: {
+                    // Backend mengirimkan array tanggal pengerjaan terdekat
+                    labels: @json($loadLabels ?? []),
+                    datasets: [{
+                        label: 'Jumlah Project',
+                        data: @json($loadTotal ?? []),
+                        borderColor: '#FCBF49', // Warna Emas NextProjectFilm
+                        backgroundColor: 'rgba(252, 191, 73, 0.1)',
+                        borderWidth: 3,
+                        fill: true,
+                        tension: 0.3,
+                        pointBackgroundColor: '#zinc-900',
+                        pointHoverRadius: 7
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                stepSize: 1
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: false
                         }
                     }
                 }

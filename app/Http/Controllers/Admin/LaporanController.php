@@ -13,46 +13,54 @@ use Maatwebsite\Excel\Facades\Excel;
 class LaporanController extends Controller
 {
     /**
-     * Method bantuan (Helper) agar logika filter tidak ditulis berulang
-     * di index, exportPdf, dan exportExcel.
+     * Method bantuan (Helper) agar logika filter akurat dan konsisten
+     * antara tampilan tabel di index, exportPdf, dan exportExcel.
      */
     private function getFilteredData(Request $request)
     {
-        $query = Pemesanan::with(['user', 'paket']);
+        $query = Pemesanan::with(['user', 'paket', 'jadwal']);
 
-        // 1. Filter Rentang Tanggal
-        if ($request->filled('tanggal_awal') && $request->filled('tanggal_akhir')) {
-            $query->whereBetween('tanggal_pesan', [$request->tanggal_awal, $request->tanggal_akhir]);
-        } else {
-            // Default: Tampilkan data bulan ini
-            $tanggal_awal = Carbon::now()->startOfMonth()->toDateString();
-            $tanggal_akhir = Carbon::now()->endOfMonth()->toDateString();
-            $query->whereBetween('tanggal_pesan', [$tanggal_awal, $tanggal_akhir]);
+        // 1. Filter Bulan (Menggunakan 'filled' agar nilai kosong "" / Semua Bulan diabaikan)
+        if ($request->filled('bulan')) {
+            $query->whereMonth('tanggal_pesan', $request->bulan);
         }
 
-        // 2. Filter Status (Menyesuaikan revisi)
+        // 2. Filter Tahun (Menggunakan 'filled' agar nilai kosong "" / Semua Tahun diabaikan)
+        if ($request->filled('tahun')) {
+            $query->whereYear('tanggal_pesan', $request->tahun);
+        }
+
+        // 3. Filter Status (Abaikan jika kosong atau bernilai 'semua')
         if ($request->filled('status') && $request->status !== 'semua') {
             $query->where('status_pemesanan', $request->status);
         }
 
-        return $query->latest()->get();
+        // Urutkan dari transaksi yang paling baru
+        return $query->latest('tanggal_pesan')->get();
     }
 
     public function index(Request $request)
     {
-        // Ambil data yang sudah difilter
+        // Ambil data yang sudah difilter secara presisi
         $laporan = $this->getFilteredData($request);
 
         // Hitung total pendapatan HANYA dari pesanan yang selesai
         $totalPendapatan = $laporan->where('status_pemesanan', 'selesai')->sum('total_harga');
         $totalPesanan = $laporan->count();
 
-        // Kembalikan parameter ke view agar form filter tetap menampilkan data yang dipilih
-        $tanggal_awal = $request->tanggal_awal ?? Carbon::now()->startOfMonth()->toDateString();
-        $tanggal_akhir = $request->tanggal_akhir ?? Carbon::now()->endOfMonth()->toDateString();
-        $status = $request->status ?? 'semua';
+        // Kembalikan parameter ke view agar form filter tetap mempertahankan pilihan user
+        $bulan = $request->input('bulan', '');
+        $tahun = $request->input('tahun', '');
+        $status = $request->input('status', '');
 
-        return view('admin.laporan.index', compact('laporan', 'totalPendapatan', 'totalPesanan', 'tanggal_awal', 'tanggal_akhir', 'status'));
+        return view('admin.laporan.index', compact(
+            'laporan',
+            'totalPendapatan',
+            'totalPesanan',
+            'bulan',
+            'tahun',
+            'status'
+        ));
     }
 
     public function exportPdf(Request $request)
@@ -62,14 +70,15 @@ class LaporanController extends Controller
         // Memuat view khusus untuk desain PDF
         $pdf = Pdf::loadView('admin.laporan.pdf', compact('laporan'));
 
-        return $pdf->download('laporan-pesanan-' . date('Ymd') . '.pdf');
+        return $pdf->download('laporan-pesanan-' . date('Ymd-His') . '.pdf');
     }
 
     public function exportExcel(Request $request)
     {
         $laporan = $this->getFilteredData($request);
 
-        // Memanggil class Export yang sudah kita buat sebelumnya
-        return Excel::download(new LaporanPemesananExport($laporan), 'laporan-pesanan-' . date('Ymd') . '.xlsx');
+        // Memanggil class Export yang meneruskan collection hasil filter
+        return Excel::download(new LaporanPemesananExport($laporan), 'laporan-pesanan-' . date('Ymd-His') . '.xlsx');
     }
 }
+    
