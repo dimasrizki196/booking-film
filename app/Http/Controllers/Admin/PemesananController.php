@@ -8,10 +8,27 @@ use Illuminate\Http\Request;
 
 class PemesananController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        // Mengambil semua data pemesanan beserta relasinya
-        $pemesanan = Pemesanan::with(['user', 'paket', 'jadwal'])->latest()->get();
+        // Memulai query dengan relasi yang dibutuhkan
+        $query = Pemesanan::with(['user', 'paket', 'jadwal']);
+
+        // Filter Search: Berdasarkan nama user (relasi)
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->whereHas('user', function ($q) use ($search) {
+                $q->where('name', 'like', '%' . $search . '%');
+            });
+        }
+
+        // Filter Status: Berdasarkan kolom status_pemesanan
+        if ($request->filled('status')) {
+            $query->where('status_pemesanan', $request->status);
+        }
+
+        // Mengambil data dengan pengurutan terbaru
+        $pemesanan = $query->latest()->get();
+
         return view('admin.pemesanan.index', compact('pemesanan'));
     }
 

@@ -10,13 +10,14 @@
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
 
             <div class="bg-white p-6 rounded-3xl shadow-xl border border-zinc-100">
-                <form method="GET" action="{{ url('admin/pemesanan') }}" class="flex flex-col sm:flex-row gap-4">
+                <!-- Pastikan action menggunakan route yang benar -->
+                <form method="GET" action="{{ route('admin.pemesanan.index') }}" class="flex flex-col sm:flex-row gap-4">
                     <input type="text" name="search" placeholder="Cari nama pelanggan..."
                         value="{{ request('search') }}"
                         class="flex-1 rounded-2xl border-zinc-200 bg-zinc-50 py-3 px-4 focus:border-[#FCBF49] focus:ring-[#FCBF49]">
 
                     <select name="status"
-                        class="appearance-none bg-none rounded-2xl border-zinc-200 bg-zinc-50 py-3 px-4 focus:border-[#FCBF49] focus:ring-[#FCBF49]"
+                        class="appearance-none rounded-2xl border-zinc-200 bg-zinc-50 py-3 px-4 focus:border-[#FCBF49] focus:ring-[#FCBF49]"
                         style="background-image: none;">
                         <option value="">Semua Status</option>
                         <option value="pending" {{ request('status') == 'pending' ? 'selected' : '' }}>Pending</option>
@@ -28,9 +29,14 @@
                     </select>
 
                     <button type="submit"
-                        class="bg-blue-600 text-white px-8 py-3 rounded-2xl font-bold hover:bg-blue-700 transition shadow-md focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:outline-none">
-                        Search
+                        class="bg-zinc-900 text-white px-8 py-3 rounded-2xl font-bold hover:bg-zinc-800 transition shadow-md">
+                        Cari
                     </button>
+
+                    <a href="{{ route('admin.pemesanan.index') }}"
+                        class="bg-zinc-100 text-zinc-600 px-6 py-3 rounded-2xl font-bold hover:bg-zinc-200 transition text-center">
+                        Reset
+                    </a>
                 </form>
             </div>
 
@@ -74,16 +80,21 @@
                                     </td>
                                     <td class="px-6 py-5 text-sm font-medium text-zinc-500">
                                         {{ $item->jadwal ? \Carbon\Carbon::parse($item->jadwal->tanggal_mulai)->format('d M Y') . ' s/d ' . \Carbon\Carbon::parse($item->jadwal->tanggal_selesai)->format('d M Y') : 'Belum Dijadwalkan' }}
-                                    </td>
                                     <td class="px-6 py-5 text-sm">
-                                        <a href="{{ route('admin.pemesanan.edit', $item->id) }}"
-                                            class="font-bold text-blue-600 hover:text-blue-800 mr-4">Kelola</a>
-                                        <form action="{{ route('admin.pemesanan.destroy', $item->id) }}" method="POST"
-                                            class="inline-block form-delete">
-                                            @csrf @method('DELETE')
-                                            <button type="submit"
-                                                class="font-bold text-red-500 hover:text-red-700">Hapus</button>
-                                        </form>
+                                        @if ($item->status_pemesanan === 'selesai')
+                                            <span class="text-zinc-400 text-xs font-bold italic">Tidak dapat
+                                                diubah</span>
+                                        @else
+                                            <a href="{{ route('admin.pemesanan.edit', $item->id) }}"
+                                                class="font-bold text-blue-600 hover:text-blue-800 mr-4">Kelola</a>
+                                            <form action="{{ route('admin.pemesanan.destroy', $item->id) }}"
+                                                method="POST" class="inline-block form-delete"
+                                                onsubmit="return confirm('Yakin ingin menghapus data ini?')">
+                                                @csrf @method('DELETE')
+                                                <button type="submit"
+                                                    class="font-bold text-red-500 hover:text-red-700">Hapus</button>
+                                            </form>
+                                        @endif
                                     </td>
                                 </tr>
                             @empty
