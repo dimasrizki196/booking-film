@@ -16,7 +16,7 @@
                     </div>
 
                     <a href="{{ route('admin.portofolio.create') }}"
-                        class="inline-flex items-center px-5 py-3 bg-zinc-900 text-[#FCBF49] text-sm font-bold rounded-2xl hover:bg-zinc-800 transition-colors shadow-md focus:ring-2 focus:ring-[#FCBF49] focus:ring-offset-2 focus:outline-none">
+                        class="inline-flex items-center px-5 py-3 bg-[#FCBF49] text-zinc-950 text-sm font-bold rounded-2xl hover:bg-yellow-500 transition-colors shadow-md focus:ring-2 focus:ring-[#FCBF49] focus:ring-offset-2 focus:outline-none">
                         <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"
                             xmlns="http://www.w3.org/2000/svg">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"

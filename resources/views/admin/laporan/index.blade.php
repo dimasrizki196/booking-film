@@ -2,7 +2,7 @@
     <x-slot name="header">
         <h2 class="text-3xl text-zinc-900 leading-tight tracking-tight"
             style="font-family: 'Playfair Display', serif; font-weight: 800;">
-            {{ __('Laporan Pemesanan & Project') }}
+            {{ __('Laporan Pemesanan dan Project') }}
         </h2>
     </x-slot>
 

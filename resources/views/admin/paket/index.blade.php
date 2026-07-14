@@ -19,6 +19,18 @@
                     peralatan produksi bertaraf industri.
                 </p>
             </div>
+            @if (Auth::user()->role === 'admin')
+                <div class="flex justify-end mb-8">
+                    <a href="{{ route('admin.paket.create') }}"
+                        class="inline-flex items-center gap-2 bg-[#FCBF49] hover:bg-yellow-500 text-zinc-950 px-6 py-3 rounded-2xl font-bold shadow-lg transition-all hover:scale-[1.02]">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4">
+                            </path>
+                        </svg>
+                        Tambah Paket Baru
+                    </a>
+                </div>
+            @endif
 
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 items-stretch">
                 @forelse ($paket as $item)
@@ -49,10 +61,20 @@
                                     </span>
                                 </div>
                             </div>
-
-                            <p class="text-sm font-medium text-zinc-600 leading-relaxed mb-6">
-                                {{ $item->deskripsi ?? 'Paket produksi video profesional dengan kualitas gambar tinggi dan penataan cahaya sinematik.' }}
+                            <p class="text-sm font-medium text-zinc-600 leading-relaxed mb-4">
+                                {{ $item->deskripsi }}
                             </p>
+
+                            <div class="mb-6">
+                                <span
+                                    class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-zinc-100 text-zinc-700">
+                                    <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                    </svg>
+                                    {{ $item->durasi_pengerjaan }} Hari Kerja
+                                </span>
+                            </div>
 
                             <div class="space-y-3 mb-8">
                                 <p
