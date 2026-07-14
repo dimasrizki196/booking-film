@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Pemesanan;
-use Carbon\Carbon; // Pastikan Carbon di-import
+use Carbon\Carbon;
 
 class DashboardController extends Controller
 {
@@ -14,78 +14,96 @@ class DashboardController extends Controller
         $user = Auth::user();
 
         if ($user->role === 'admin') {
-            // 1. DIBUAT BASE QUERY KHUSUS UNTUK MENGHITUNG KARTU STATUS
-            // Ini agar filter bulan & tahun juga otomatis memengaruhi jumlah di kartu
-            $countQuery = Pemesanan::query();
+            // Tangkap input filter tunggal (Global Filter)
+            $reqBulan = $request->input('bulan');
+            $reqTahun = $request->input('tahun');
 
-            // 2. LOGIKA UNTUK TABEL DATA PROJECT
+            // ==========================================
+            // 1. BASE QUERY UNTUK KARTU STATUS & TABEL
+            // ==========================================
+            $countQuery = Pemesanan::query();
             $query = Pemesanan::with(['user', 'paket', 'jadwal']);
 
-            if ($request->filled('bulan')) {
-                $query->whereMonth('tanggal_pesan', $request->bulan);
-                $countQuery->whereMonth('tanggal_pesan', $request->bulan); // Ikut filter kartu
+            // Jika filter di-apply, filter tabel dan kartu
+            if ($reqBulan) {
+                $query->whereMonth('tanggal_pesan', $reqBulan);
+                $countQuery->whereMonth('tanggal_pesan', $reqBulan);
             }
-            if ($request->filled('tahun')) {
-                $query->whereYear('tanggal_pesan', $request->tahun);
-                $countQuery->whereYear('tanggal_pesan', $request->tahun); // Ikut filter kartu
+            if ($reqTahun) {
+                $query->whereYear('tanggal_pesan', $reqTahun);
+                $countQuery->whereYear('tanggal_pesan', $reqTahun);
             }
 
-            $pemesanan = $query->latest('tanggal_pesan')->get();
+            // Tampil semua secara default, paginate 10
+            $pemesanan = $query->latest('tanggal_pesan')->paginate(10)->withQueryString();
 
-            // 3. HITUNG JUMLAH STATUS SECARA AKURAT MENGGUNAKAN CLONE QUERY
-            // Menggunakan clone agar kondisi where status tidak saling bertabrakan
+            // ==========================================
+            // 2. HITUNG JUMLAH STATUS (SUMMARY CARDS)
+            // ==========================================
             $countPending = (clone $countQuery)->where('status_pemesanan', 'pending')->count();
             $countDiproses = (clone $countQuery)->where('status_pemesanan', 'diproses')->count();
             $countSelesai = (clone $countQuery)->where('status_pemesanan', 'selesai')->count();
             $countDibatalkan = (clone $countQuery)->where('status_pemesanan', 'dibatalkan')->count();
 
+            // ==========================================
+            // 3. LOGIKA GANTT CHART (DURASI PROJECT)
+            // ==========================================
+            // Gantt Chart wajib butuh bulan/tahun spesifik. Jika filter kosong, gunakan bulan ini.
+            $ganttBulan = $reqBulan ?: date('m');
+            $ganttTahun = $reqTahun ?: date('Y');
 
-            // 4. LOGIKA UNTUK FILTER CHART BULANAN (TETAP SEPERTI SEBELUMNYA)
-            $chartYear = $request->input('chart_tahun', date('Y'));
-            $months = ['01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12'];
-            $dataPending = [];
-            $dataDiproses = [];
-            $dataSelesai = [];
+            $startOfMonth = Carbon::createFromDate($ganttTahun, $ganttBulan, 1)->startOfDay();
+            $daysInMonth = $startOfMonth->daysInMonth;
+            $endOfMonth = $startOfMonth->copy()->endOfMonth();
 
-            foreach ($months as $m) {
-                $dataPending[] = Pemesanan::whereYear('tanggal_pesan', $chartYear)->whereMonth('tanggal_pesan', $m)->where('status_pemesanan', 'pending')->count();
-                $dataDiproses[] = Pemesanan::whereYear('tanggal_pesan', $chartYear)->whereMonth('tanggal_pesan', $m)->where('status_pemesanan', 'diproses')->count();
-                $dataSelesai[] = Pemesanan::whereYear('tanggal_pesan', $chartYear)->whereMonth('tanggal_pesan', $m)->where('status_pemesanan', 'selesai')->count();
-            }
+            // Cari project yang sedang aktif (jadwalnya bersinggungan dengan bulan chart)
+            $activeProjects = Pemesanan::with(['user', 'paket', 'jadwal'])
+                ->whereHas('jadwal', function ($q) use ($startOfMonth, $endOfMonth) {
+                    $q->whereDate('tanggal_mulai', '<=', $endOfMonth)
+                        ->whereDate('tanggal_selesai', '>=', $startOfMonth);
+                })
+                ->whereIn('status_pemesanan', ['diproses', 'selesai'])
+                ->get();
 
-            // 5. LOGIKA LOAD PROJECT PER TANGGAL (CONTOH DATA TERDEKAT)
-            // Ambil data project berjalan 7 hari ke depan untuk grafik garis load
-            $upcomingProjects = Pemesanan::where('status_pemesanan', 'diproses')
-                ->where('tanggal_pengerjaan', '>=', now()->toDateString())
-                ->orderBy('tanggal_pengerjaan', 'asc')
-                ->take(7)
-                ->get()
-                ->groupBy('tanggal_pengerjaan');
+            $ganttLabels = [];
+            $ganttData = [];
+            $ganttTooltips = [];
 
-            $loadLabels = [];
-            $loadValues = [];
-            foreach ($upcomingProjects as $date => $projects) {
-                $loadLabels[] = \Carbon\Carbon::parse($date)->format('d M');
-                $loadValues[] = $projects->count();
+            foreach ($activeProjects as $project) {
+                $ganttLabels[] = ($project->user->name ?? 'User') . ' (' . ($project->paket->nama_paket ?? 'Paket') . ')';
+
+                $start = Carbon::parse($project->jadwal->tanggal_mulai);
+                $end = Carbon::parse($project->jadwal->tanggal_selesai);
+
+                $startDay = $start->lessThan($startOfMonth) ? 1 : (int) $start->format('d');
+                $endDay = $end->greaterThan($endOfMonth) ? $daysInMonth : (int)$end->format('d');
+
+                if ($startDay === $endDay) {
+                    $endDay += 0.8;
+                }
+
+                $ganttData[] = [$startDay, $endDay];
+                $ganttTooltips[] = $start->format('d M Y') . ' s/d ' . $end->format('d M Y');
             }
 
             return view('dashboard', compact(
                 'pemesanan',
-                'chartYear',
-                'dataPending',
-                'dataDiproses',
-                'dataSelesai',
                 'countPending',
                 'countDiproses',
                 'countSelesai',
                 'countDibatalkan',
-                'loadLabels',
-                'loadValues'
+                'daysInMonth',
+                'ganttLabels',
+                'ganttData',
+                'ganttTooltips',
+                'ganttBulan',
+                'ganttTahun'
             ));
         }
-        // ====================================================
-        // LOGIKA PELANGGAN
-        // ====================================================
+
+        // ==========================================
+        // 4. LOGIKA PELANGGAN
+        // ==========================================
         $pesananTerakhir = Pemesanan::with(['paket', 'jadwal'])
             ->where('user_id', $user->id)
             ->latest()
